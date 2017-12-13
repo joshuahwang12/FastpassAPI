@@ -37,6 +37,21 @@ namespace FastpassAPI.Controllers
             return new ObjectResult(ticketId);
         }
 
+        [HttpGet (/"FastPass/?ticketId={ticketId}")]
+        public IEnumerable<string> GetFastPass(int ticketId)
+        {
+            var fastpass = _context.Tickets.Where(n => n.TicketId == ticketId).FirstOrDefault();
+
+            if(fastpass == null)
+            {
+                return new string[] { "Not Found" };
+
+            }
+            else
+            {
+                
+            }
+        }
 
 
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
+
 namespace FastpassAPI.Models
 {
     public class FastpassContext : DbContext

@@ -26,7 +26,9 @@ namespace FastpassAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<FastpassContext>(opt => opt.UseInMemoryDatabase("FastpassAPI"));
+            //services.AddDbContext<FastpassContext>(option => option.UseSqlServer(Configuration)
             services.AddMvc();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
