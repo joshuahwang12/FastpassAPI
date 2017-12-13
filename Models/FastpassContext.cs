@@ -7,9 +7,8 @@ namespace FastpassAPI.Models
         public FastpassContext(DbContextOptions<FastpassContext> options)
             : base(options)
             {
-
             }
-
-            public DbSet<FastPass> FastPass {get;set;}
+            public DbSet<Ride> Rides {get;set;}
+            public DbSet<Ticket> Tickets {get;set;}
     }
 }
