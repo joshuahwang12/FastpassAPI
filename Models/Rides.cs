@@ -1,9 +1,12 @@
+﻿using System;
+using System.Collections.Generic;
+
 namespace FastpassAPI.Models
 {
-    public class Ride
+    public partial class Rides
     {
-        public int RideId {get;set;}
-        public string RideDescription {get;set;}
-        
+        public int Id { get; set; }
+        public int RideId { get; set; }
+        public string RideDescription { get; set; }
     }
 }

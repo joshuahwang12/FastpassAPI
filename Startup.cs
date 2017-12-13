@@ -25,7 +25,7 @@ namespace FastpassAPI
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<FastpassContext>(opt => opt.UseInMemoryDatabase("FastpassAPI"));
-            services.AddDbContext<FastpassContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<FastPassApiContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddMvc();
         }
 
