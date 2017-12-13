@@ -17,10 +17,10 @@ namespace FastpassAPI.Controllers
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("/FastPass/?ticketit={ticketId}")]
+        public void Get(int ticketId)
         {
-            return "value";
+            
         }
 
         // POST api/values
