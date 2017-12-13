@@ -15,20 +15,18 @@ namespace FastpassAPI
 {
     public class Startup
     {
-        // public Startup(IConfiguration configuration)
-        // {
-        //     Configuration = configuration;
-        // }
-
-        // public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<FastpassContext>(opt => opt.UseInMemoryDatabase("FastpassAPI"));
-            //services.AddDbContext<FastpassContext>(option => option.UseSqlServer(Configuration)
+            //services.AddDbContext<FastpassContext>(opt => opt.UseInMemoryDatabase("FastpassAPI"));
+            services.AddDbContext<FastpassContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddMvc();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
