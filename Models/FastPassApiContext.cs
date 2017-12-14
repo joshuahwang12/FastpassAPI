@@ -10,6 +10,9 @@ namespace FastpassAPI.Models
         public virtual DbSet<Rides> Rides { get; set; }
         public virtual DbSet<Tickets> Tickets { get; set; }
 
+        public FastPassApiContext(DbContextOptions<FastPassApiContext> options)
+            : base(options)
+        { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

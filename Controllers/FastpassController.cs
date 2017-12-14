@@ -20,28 +20,16 @@ namespace FastpassAPI.Controllers
             db = context;
 
         }
-        [HttpGet]
-        public string Ping()
-        {
-            return "yo";
-        }
 
         [HttpPost]
         [Route("ticketid={ticketId}&rideid={rideId}")]
         public IActionResult AddFastPass(int ticketId, int rideId)
         {    
-            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId).FirstOrDefault();
+            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId && n.RedeemedTime == null).FirstOrDefault();
             if(validFastPass != null && validFastPass.Time >= DateTime.Now)
             {
                  return new ContentResult() { Content = "Not Valid", StatusCode = 400};
             }
-            // var validFastPassList = db.FastPass.Where(n => n.Time >= DateTime.Now).ToList();
-            // //check if ticket has valid fastpass
-            // var validTicket = validFastPassList.Where(n => n.TicketId == ticketId).FirstOrDefault();
-            // if(validTicket != null)
-            // {
-            //     return new ContentResult() { Content = "Not Valid", StatusCode = 400};
-            // }
             else
             {
                 string contentMessage;
@@ -107,6 +95,13 @@ namespace FastpassAPI.Controllers
                 return new ContentResult() { Content = "No valid FastPass for given TicketId and RideId", StatusCode = 404};
             }
         }
+
+        // [Route("report"), HttpGet]
+        // public JsonResult GetFastPassReport()
+        // {
+        //     var fastPassList = db.FastPass.ToList();
+        //     List<FastPassReport> reportList = new List<FastPassReport>();
+        // }
         
 
     }
