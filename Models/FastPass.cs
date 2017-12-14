@@ -7,5 +7,7 @@ namespace FastpassAPI.Models
     {
         public int Id { get; set; }
         public int TicketId { get; set; }
+        public int RideId { get; set; }
+        public DateTime? Time { get; set; }
     }
 }
