@@ -25,8 +25,8 @@ namespace FastpassAPI.Controllers
         [Route("ticketid={ticketId}&rideid={rideId}")]
         public IActionResult AddFastPass(int ticketId, int rideId)
         {    
-            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId && n.RedeemedTime == null).FirstOrDefault();
-            if(validFastPass != null && validFastPass.Time >= DateTime.Now)
+            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId && n.Time <= DateTime.Now).FirstOrDefault();
+            if(validFastPass != null && validFastPass.Time >= DateTime.Now && validFastPass.RedeemedTime == null)
             {
                  return new ContentResult() { Content = "Not Valid", StatusCode = 400};
             }
@@ -64,12 +64,12 @@ namespace FastpassAPI.Controllers
             }
         }
 
-        [Route("redeem?ticketid={ticketId}&rideId={rideId}"), HttpPut]
-        public IActionResult RedeemFastPass(int ticketId, int rideId)
+        [Route("[action]ticketid={ticketId}&rideId={rideId}"), HttpPut]
+        public IActionResult redeem (int ticketId, int rideId)
         {
             var fastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId).FirstOrDefault();
-            var validFastPassList = db.FastPass.Where(n => n.Time >= DateTime.Now && n.RedeemedTime != null).ToList();
-            var expiredFastPassList = db.FastPass.Where(n => n.Time < DateTime.Now || n.RedeemedTime.HasValue).ToList();
+            var validFastPassList = db.FastPass.Where(n => n.Time >= DateTime.Now.ToLocalTime() && !n.RedeemedTime.HasValue).ToList();
+            var expiredFastPassList = db.FastPass.Where(n => n.Time < DateTime.Now.ToLocalTime() || n.RedeemedTime.HasValue).ToList();
             string contentMessage;
             
             //Valid FastPass
@@ -78,7 +78,7 @@ namespace FastpassAPI.Controllers
                 var rideDesc = db.Rides.Where(n => n.RideId == fastPass.RideId).Select(n => n.RideDescription).FirstOrDefault();
                 contentMessage = "Success redeeming FastPass for " + rideDesc;
                 fastPass.RedeemedTime = DateTime.Now;
-                db.Add(fastPass);
+                db.Entry(fastPass);
                 db.SaveChanges();
                 return new ContentResult() { Content = contentMessage, StatusCode = 200};
             }
