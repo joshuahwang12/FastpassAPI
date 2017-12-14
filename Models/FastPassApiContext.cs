@@ -6,6 +6,7 @@ namespace FastpassAPI.Models
 {
     public partial class FastPassApiContext : DbContext
     {
+        public virtual DbSet<FastPass> FastPass { get; set; }
         public virtual DbSet<Rides> Rides { get; set; }
         public virtual DbSet<Tickets> Tickets { get; set; }
 
@@ -25,11 +26,6 @@ namespace FastpassAPI.Models
                 entity.Property(e => e.RideDescription)
                     .IsRequired()
                     .HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<Tickets>(entity =>
-            {
-                entity.HasKey(e => e.TicketId);
             });
         }
     }

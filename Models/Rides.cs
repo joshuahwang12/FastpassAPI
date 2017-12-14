@@ -8,5 +8,6 @@ namespace FastpassAPI.Models
         public int Id { get; set; }
         public int RideId { get; set; }
         public string RideDescription { get; set; }
+        public int? QueueTime { get; set; }
     }
 }
