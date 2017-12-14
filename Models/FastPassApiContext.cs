@@ -6,10 +6,6 @@ namespace FastpassAPI.Models
 {
     public partial class FastPassApiContext : DbContext
     {
-        public FastPassApiContext(DbContextOptions<FastPassApiContext> options)
-            : base(options)
-        {
-        }
         public virtual DbSet<FastPass> FastPass { get; set; }
         public virtual DbSet<Rides> Rides { get; set; }
         public virtual DbSet<Tickets> Tickets { get; set; }

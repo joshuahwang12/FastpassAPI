@@ -79,7 +79,33 @@ namespace FastpassAPI.Controllers
         [Route("redeem?ticketid={ticketId}&rideId={rideId}"), HttpPut]
         public IActionResult RedeemFastPass(int ticketId, int rideId)
         {
-            var validFastPassList = db.FastPass.Where(n => n.Time >= DateTime.Now).ToList();
+            var fastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId).FirstOrDefault();
+            var validFastPassList = db.FastPass.Where(n => n.Time >= DateTime.Now && n.RedeemedTime != null).ToList();
+            var expiredFastPassList = db.FastPass.Where(n => n.Time < DateTime.Now || n.RedeemedTime.HasValue).ToList();
+            string contentMessage;
+            
+            //Valid FastPass
+            if(validFastPassList.Any(n => n.Id == fastPass.Id))
+            {
+                var rideDesc = db.Rides.Where(n => n.RideId == fastPass.RideId).Select(n => n.RideDescription).FirstOrDefault();
+                contentMessage = "Success redeeming FastPass for " + rideDesc;
+                fastPass.RedeemedTime = DateTime.Now;
+                db.Add(fastPass);
+                db.SaveChanges();
+                return new ContentResult() { Content = contentMessage, StatusCode = 200};
+            }
+            //expired FastPass
+            else if(fastPass != null && expiredFastPassList.Any(n => n.Id == fastPass.Id))
+            {
+                var rideDesc = db.Rides.Where(n => n.RideId == fastPass.RideId).Select(n => n.RideDescription).FirstOrDefault();
+                contentMessage = "Your FastPass for " + rideDesc + " has expired.";
+                return new ContentResult() { Content = contentMessage, StatusCode = 400};
+            }
+            //Given ticketId does not have a valid fastpass for given rideId
+            else
+            {
+                return new ContentResult() { Content = "No valid FastPass for given TicketId and RideId", StatusCode = 404};
+            }
         }
         
 
