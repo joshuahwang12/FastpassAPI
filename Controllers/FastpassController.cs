@@ -6,12 +6,14 @@ using System;
 using System.Web;
 using System.Net.Http;
 using System.Web.Http;
+using System.Globalization;
 
 namespace FastpassAPI.Controllers
 {
     [Route("api/[controller]")]
     public class FastpassController : Controller
     {
+
         private readonly FastPassApiContext db;
         
     
@@ -96,13 +98,38 @@ namespace FastpassAPI.Controllers
             }
         }
 
-        // [Route("report"), HttpGet]
-        // public JsonResult GetFastPassReport()
-        // {
-        //     var fastPassList = db.FastPass.ToList();
-        //     List<FastPassReport> reportList = new List<FastPassReport>();
-        // }
-        
+        [Route("report"), HttpGet]
+        public JsonResult GetFastPassReport()
+        {
+            var ridesList = db.Rides.ToList();
 
+            List<FastPassReport> reportList = new List<FastPassReport>();
+            foreach(var ride in ridesList)
+            {
+                List<FastPassReportObject> fastPassList = new List<FastPassReportObject>();
+
+                for(int i = 0; i < 48; i++)
+                {
+                    DateTime today = DateTime.Now.Date;
+                    DateTime start = today.AddMinutes(i * 30);
+                    DateTime end = today.AddMinutes((i + 1) * 30);
+
+                    int fps = db.FastPass.Where(n => n.RedeemedTime >= start && n.RedeemedTime <= end).Count();
+                    FastPassReportObject temp = new FastPassReportObject
+                    {
+                        TimeIntervals = start.ToShortTimeString() + "-" + end.ToShortTimeString(),
+                        RedeemedFastPassCount = fps
+                    };
+                    fastPassList.Add(temp);
+                }
+                reportList.Add(new FastPassReport {
+                    RideDescription = ride.RideDescription,
+                    TimeIntervals = fastPassList,                    
+                });
+            }
+            return Json(reportList);
+            
+        }           
+                
     }
 }

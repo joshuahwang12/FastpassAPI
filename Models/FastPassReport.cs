@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 namespace FastpassAPI.Models
 {
     public class FastPassReport
     {
         public string RideDescription {get;set;}
-        public DateTime TimeIntervals {get;set;}
-        public int RedeemedCount {get;set;}
+        public List<FastPassReportObject> TimeIntervals {get;set;}
     }
 }
