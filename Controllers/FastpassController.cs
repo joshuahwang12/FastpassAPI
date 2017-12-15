@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace FastpassAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class FastpassController : Controller
     {
 
@@ -27,8 +27,8 @@ namespace FastpassAPI.Controllers
         [Route("ticketid={ticketId}&rideid={rideId}")]
         public IActionResult AddFastPass(int ticketId, int rideId)
         {    
-            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId && n.Time <= DateTime.Now).FirstOrDefault();
-            if(validFastPass != null && validFastPass.Time >= DateTime.Now && validFastPass.RedeemedTime == null)
+            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.Time >= DateTime.Now.ToLocalTime()).FirstOrDefault();
+            if(validFastPass != null)
             {
                  return new ContentResult() { Content = "Not Valid", StatusCode = 400};
             }
@@ -52,14 +52,14 @@ namespace FastpassAPI.Controllers
         [Route("ticketId={ticketId}"), HttpGet]
         public IActionResult GetFastPass(int ticketId)
         {
-            var fastpass = db.FastPass.Where(n => n.TicketId == ticketId).FirstOrDefault();
+            var fastpass = db.FastPass.Where(n => n.TicketId == ticketId && n.Time >= DateTime.Now.ToLocalTime()).FirstOrDefault();
             string contentMessage;
-            if (fastpass != null)
+            if(fastpass != null)
             {
                 var ride = db.Rides.Where(n => n.RideId == fastpass.RideId).FirstOrDefault();
                 contentMessage = "Ride: " + ride.RideDescription + ". Queue Time: " + ride.QueueTime + "minutes. Expiration Time: " + fastpass.Time; 
                 return new ContentResult(){ Content = contentMessage, StatusCode = 200};
-            }
+            }            
             else
             {
                 return new ContentResult() { Content = "Given TicketId doest not have a FastPass", StatusCode = 404};
