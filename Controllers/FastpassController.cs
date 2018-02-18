@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using FastpassAPI.Models;
 using System.Linq;
@@ -25,9 +26,11 @@ namespace FastpassAPI.Controllers
 
         [HttpPost]
         [Route("ticketid={ticketId}&rideid={rideId}")]
-        public IActionResult AddFastPass(int ticketId, int rideId)
+        public async Task<IActionResult> AddFastPass(int ticketId, int rideId)
         {    
-            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.Time >= DateTime.Now.ToLocalTime()).FirstOrDefault();
+            //var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.Time >= DateTime.Now.ToLocalTime()).FirstOrDefault();
+            var validFastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.FastPassFlag == true).FirstOrDefault();
+            
             if(validFastPass != null)
             {
                  return new ContentResult() { Content = "Not Valid", StatusCode = 400};
@@ -35,12 +38,18 @@ namespace FastpassAPI.Controllers
             else
             {
                 string contentMessage;
-                FastPass newFp = new FastPass();
-                newFp.TicketId = ticketId;
-                newFp.RideId = rideId;
+                FastPass newFp = new FastPass() {
+                    TicketId = ticketId,
+                    RideId = rideId,
+                    FastPassFlag = true
+                };
+                // newFp.TicketId = ticketId;
+                // newFp.RideId = rideId;
+                // newFp.FastPassFlag = true;
+
                 newFp.Time = DateTime.Now.AddHours(1);
-                db.Add(newFp);
-                db.SaveChanges();
+                await db.AddAsync(newFp);
+                await db.SaveChangesAsync();
                 
                 contentMessage = "Please return at " + DateTime.Now.AddMinutes(30) + ". It will expire at " + DateTime.Now.AddHours(1);
 
@@ -50,7 +59,7 @@ namespace FastpassAPI.Controllers
         }
 
         [Route("ticketId={ticketId}"), HttpGet]
-        public IActionResult GetFastPass(int ticketId)
+        public async Task<IActionResult> GetFastPass(int ticketId)
         {
             var fastpass = db.FastPass.Where(n => n.TicketId == ticketId && n.Time >= DateTime.Now.ToLocalTime()).FirstOrDefault();
             string contentMessage;
@@ -67,21 +76,21 @@ namespace FastpassAPI.Controllers
         }
 
         [Route("[action]ticketid={ticketId}&rideId={rideId}"), HttpPut]
-        public IActionResult redeem (int ticketId, int rideId)
+        public async Task<IActionResult> redeem (int ticketId, int rideId)
         {
             var fastPass = db.FastPass.Where(n => n.TicketId == ticketId && n.RideId == rideId).FirstOrDefault();
-            var validFastPassList = db.FastPass.Where(n => n.Time >= DateTime.Now.ToLocalTime() && !n.RedeemedTime.HasValue).ToList();
+            var fastPassList = db.FastPass.Where(n => n.Time >= DateTime.Now.ToLocalTime()).ToList();
             var expiredFastPassList = db.FastPass.Where(n => n.Time < DateTime.Now.ToLocalTime() || n.RedeemedTime.HasValue).ToList();
             string contentMessage;
             
             //Valid FastPass
-            if(validFastPassList.Any(n => n.Id == fastPass.Id))
+            if(fastPassList.Any((n => n.Id == fastPass.Id && !n.RedeemedTime.HasValue || n.MasterFastPass)))
             {
                 var rideDesc = db.Rides.Where(n => n.RideId == fastPass.RideId).Select(n => n.RideDescription).FirstOrDefault();
                 contentMessage = "Success redeeming FastPass for " + rideDesc;
                 fastPass.RedeemedTime = DateTime.Now;
                 db.Entry(fastPass);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return new ContentResult() { Content = contentMessage, StatusCode = 200};
             }
             //expired FastPass

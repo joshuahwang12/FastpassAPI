@@ -10,5 +10,7 @@ namespace FastpassAPI.Models
         public int RideId { get; set; }
         public DateTime? Time { get; set; }
         public DateTime? RedeemedTime { get; set; }
+        public bool FastPassFlag {get;set;}
+        public bool MasterFastPass {get;set;}
     }
 }
